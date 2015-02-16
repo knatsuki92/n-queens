@@ -331,3 +331,55 @@ window.countNQueensSolutionsOptimized = function(n) {
   console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
+
+window.countNQueensSolutionsBitwise = function(n) {
+  // key: each row, col, majordiag, and minordiag must only contain 1 queen
+  // At each step, we essentially keep track of all taken positions s 
+
+  // Store the n possible moves in each row in decimal representation: 
+  // [b1,b2,b3,b4] (base 2) - > b1 * 2^3 + b2 * 2^2 + b3 * 2^1 + b4 (base 10)
+
+  if (n === 0 ){
+    var solutionCount = 1;
+    console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+    return solutionCount;
+  }
+
+  var solutionCount = 0;
+  var moves = [];
+  for (var i = 0; i < n; i++) {
+    moves[i] = Math.pow(2, i);
+  }
+
+  var colQ, leftDiagQ, rightDiagQ;
+  var recurse = function (numSteps, colQ, leftDiagQ, rightDiagQ){
+    if (numSteps === n) {
+      solutionCount++;
+      return
+    }
+ 
+    var queenTaken = colQ | leftDiagQ | rightDiagQ;
+    for (var i = 0; i < n; i++) {
+      if ((moves[i] & queenTaken) !== moves[i]){
+        var nextcolQ = colQ | moves[i];
+        var nextleftDiagQ = (leftDiagQ | moves[i]) << 1;
+        var nextrightDiagQ = (rightDiagQ | moves[i]) >> 1;
+        recurse(numSteps + 1, nextcolQ, nextleftDiagQ, nextrightDiagQ);
+      }
+
+    }
+  }
+
+  for (var i = 0; i < n ; i++) {
+    var numSteps = 1;
+    colQ = moves[i];
+    leftDiagQ = moves[i] << 1;
+    rightDiagQ = moves[i] >> 1;
+    recurse(numSteps, colQ, leftDiagQ, rightDiagQ);
+
+  }
+
+  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  return solutionCount;
+  
+};
